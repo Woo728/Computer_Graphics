@@ -45,6 +45,9 @@ LPDIRECT3DTEXTURE9      g_pTexture02 = NULL;
 LPDIRECT3DTEXTURE9      g_pTexture03 = NULL;
 LPDIRECT3DTEXTURE9      g_pTexture04 = NULL;
 
+float A = 0;
+float B = 0;
+static int counter = 0;
 
 // A structure for our custom vertex type. We added texture coordinates
 struct CUSTOMVERTEX
@@ -124,11 +127,12 @@ HRESULT InitGeometry()
 	}
 	}
 	*/
-	D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture00);
-	D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture01);
-	D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture02);
-	D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture03);
-	D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture04);
+
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture00);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana2.bmp", &g_pTexture01);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture02);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana2.bmp", &g_pTexture03);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture04);
 
 	// Create the vertex buffer.
 	if (FAILED(g_pd3dDevice->CreateVertexBuffer(6 * sizeof(CUSTOMVERTEX),
@@ -213,10 +217,15 @@ VOID SetupMatrices()
 {
 	// Set up world matrix
 	D3DXMATRIXA16 matWorld;
-	D3DXMatrixIdentity(&matWorld);
-	//D3DXMatrixRotationX( &matWorld, timeGetTime() / 1000.0f );
-	g_pd3dDevice->SetTransform(D3DTS_WORLD, &matWorld);
+	D3DXMATRIXA16 matWorld01;
 
+	
+	D3DXMatrixIdentity(&matWorld);
+	D3DXMatrixTranslation(&matWorld, A, 0.0f, 0.0f);
+	//D3DXMatrixRotationX(&matWorld, A);
+	g_pd3dDevice->SetTransform(D3DTS_WORLD, &matWorld);
+	
+	
 	// Set up our view matrix. A view matrix can be defined given an eye point,
 	// a point to lookat, and a direction for which way is up. Here, we set the
 	// eye five units back along the z-axis and up three units, look at the
@@ -248,8 +257,6 @@ VOID SetupMatrices()
 //-----------------------------------------------------------------------------
 VOID Render()
 {
-	static int counter = 0;
-
 	// Clear the backbuffer and the zbuffer
 	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
 		D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
@@ -260,25 +267,26 @@ VOID Render()
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 
-		counter = counter + 1;
+		
 		switch (counter % 5)
 		{
-		case 0:
-			g_pd3dDevice->SetTexture(0, g_pTexture00);
-			break;
-		case 1:
-			g_pd3dDevice->SetTexture(0, g_pTexture01);
-			break;
-		case 2:
-			g_pd3dDevice->SetTexture(0, g_pTexture02);
-			break;
-		case 3:
-			g_pd3dDevice->SetTexture(0, g_pTexture03);
-			break;
-		case 4:
-			g_pd3dDevice->SetTexture(0, g_pTexture04);
-			break;
+			case 0:
+				g_pd3dDevice->SetTexture(0, g_pTexture00);
+				break;
+			case 1:
+				g_pd3dDevice->SetTexture(0, g_pTexture01);
+				break;
+			case 2:
+				g_pd3dDevice->SetTexture(0, g_pTexture02);
+				break;
+			case 3:
+				g_pd3dDevice->SetTexture(0, g_pTexture03);
+				break;
+			case 4:
+				g_pd3dDevice->SetTexture(0, g_pTexture04);
+				break;
 		}
+		
 
 		// Setup our texture. Using Textures introduces the texture stage states,
 		// which govern how Textures get blended together (in the case of multiple
@@ -314,6 +322,20 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_LEFT:
+			A = A + 0.01f, counter = counter + 1;				
+			break;
+		case VK_RIGHT:
+			A = A - 0.01f, counter = counter + 1;
+			break;
+		case VK_UP:
+			B = B + 0.1f, counter = counter + 1;
+			break;
+		}
+		return 0;
 	case WM_DESTROY:
 		Cleanup();
 		PostQuitMessage(0);
