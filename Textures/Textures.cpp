@@ -44,10 +44,16 @@ LPDIRECT3DTEXTURE9      g_pTexture01 = NULL;
 LPDIRECT3DTEXTURE9      g_pTexture02 = NULL;
 LPDIRECT3DTEXTURE9      g_pTexture03 = NULL;
 LPDIRECT3DTEXTURE9      g_pTexture04 = NULL;
+LPDIRECT3DTEXTURE9      g_pTexture05 = NULL;
+LPDIRECT3DTEXTURE9      g_pTexture06 = NULL;
+LPDIRECT3DTEXTURE9      g_pTexture07 = NULL;
+LPDIRECT3DTEXTURE9      g_pTexture08 = NULL;
+LPDIRECT3DTEXTURE9      g_pTexture09 = NULL;
 
 float A = 0;
-float B = 0;
+int B = 0;
 static int counter = 0;
+static int counter2 = 1;
 
 // A structure for our custom vertex type. We added texture coordinates
 struct CUSTOMVERTEX
@@ -133,6 +139,10 @@ HRESULT InitGeometry()
 		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture02);
 		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana2.bmp", &g_pTexture03);
 		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture04);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana3.bmp", &g_pTexture06);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana3.bmp", &g_pTexture07);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana4.bmp", &g_pTexture08);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana4.bmp", &g_pTexture09);
 
 	// Create the vertex buffer.
 	if (FAILED(g_pd3dDevice->CreateVertexBuffer(6 * sizeof(CUSTOMVERTEX),
@@ -267,9 +277,10 @@ VOID Render()
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 
-		
-		switch (counter % 5)
+		if (B == 0)
 		{
+			switch (counter % 5)
+			{
 			case 0:
 				g_pd3dDevice->SetTexture(0, g_pTexture00);
 				break;
@@ -285,8 +296,23 @@ VOID Render()
 			case 4:
 				g_pd3dDevice->SetTexture(0, g_pTexture04);
 				break;
+			}
 		}
-		
+		else if (B == 1)
+		{
+			switch (counter2 % 3)
+			{
+			case 0:
+				g_pd3dDevice->SetTexture(0, g_pTexture06);
+				break;
+			case 1:
+				g_pd3dDevice->SetTexture(0, g_pTexture04);
+				break;
+			case 2:
+				g_pd3dDevice->SetTexture(0, g_pTexture07);
+				break;
+			}
+		}
 
 		// Setup our texture. Using Textures introduces the texture stage states,
 		// which govern how Textures get blended together (in the case of multiple
@@ -326,13 +352,13 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case VK_LEFT:
-			A = A + 0.01f, counter = counter + 1;				
+			B = 0, A = A + 0.01f, counter = counter + 1;				
 			break;
 		case VK_RIGHT:
-			A = A - 0.01f, counter = counter + 1;
+			B = 0, A = A - 0.01f, counter = counter + 1;
 			break;
-		case VK_UP:
-			B = B + 0.1f, counter = counter + 1;
+		case VK_SPACE:
+			B = 1, counter2 = counter2 + 1;
 			break;
 		}
 		return 0;
