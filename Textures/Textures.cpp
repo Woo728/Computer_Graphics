@@ -49,11 +49,15 @@ LPDIRECT3DTEXTURE9      g_pTexture06 = NULL;
 LPDIRECT3DTEXTURE9      g_pTexture07 = NULL;
 LPDIRECT3DTEXTURE9      g_pTexture08 = NULL;
 LPDIRECT3DTEXTURE9      g_pTexture09 = NULL;
+LPDIRECT3DTEXTURE9      g_pTexture10 = NULL;
+LPDIRECT3DTEXTURE9      g_pTexture11 = NULL;
 
 float A = 0;
-int B = 0;
-static int counter = 0;
-static int counter2 = 1;
+int B = 4;
+static float counter = 0;
+static float counter2 = 0;
+static float counter3 = 0;
+static float counter4 = 0;
 
 // A structure for our custom vertex type. We added texture coordinates
 struct CUSTOMVERTEX
@@ -134,15 +138,18 @@ HRESULT InitGeometry()
 	}
 	*/
 
-		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture00);
-		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana2.bmp", &g_pTexture01);
-		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture02);
-		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana2.bmp", &g_pTexture03);
-		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana.bmp", &g_pTexture04);
-		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana3.bmp", &g_pTexture06);
-		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana3.bmp", &g_pTexture07);
-		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana4.bmp", &g_pTexture08);
-		D3DXCreateTextureFromFile(g_pd3dDevice, L"banana4.bmp", &g_pTexture09);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"right_walk_1.png", &g_pTexture00);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"right_walk_2.png", &g_pTexture01);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"right_walk_3.png", &g_pTexture02);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"attack_1.png", &g_pTexture03);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"attack_2.png", &g_pTexture04);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"attack_3.png", &g_pTexture05);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"skill_1.png", &g_pTexture06);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"skill_2.png", &g_pTexture07);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"left_walk_1.png", &g_pTexture08);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"left_walk_2.png", &g_pTexture09);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"left_walk_3.png", &g_pTexture10);
+		D3DXCreateTextureFromFile(g_pd3dDevice, L"right_walk_1.png", &g_pTexture11);
 
 	// Create the vertex buffer.
 	if (FAILED(g_pd3dDevice->CreateVertexBuffer(6 * sizeof(CUSTOMVERTEX),
@@ -240,9 +247,9 @@ VOID SetupMatrices()
 	// a point to lookat, and a direction for which way is up. Here, we set the
 	// eye five units back along the z-axis and up three units, look at the
 	// origin, and define "up" to be in the y-direction.
-	D3DXVECTOR3 vEyePt(0.0f, 3.0f, 10.0f);
+	D3DXVECTOR3 vEyePt(0.0f, 0.0f, -10.0f);
 	D3DXVECTOR3 vLookatPt(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
+	D3DXVECTOR3 vUpVec(0.0f, -1.0f, 0.0f);
 	D3DXMATRIXA16 matView;
 	D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
 	g_pd3dDevice->SetTransform(D3DTS_VIEW, &matView);
@@ -269,7 +276,7 @@ VOID Render()
 {
 	// Clear the backbuffer and the zbuffer
 	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
+		D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
 	// Begin the scene
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
@@ -277,9 +284,25 @@ VOID Render()
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 
+		//go left & right
 		if (B == 0)
 		{
-			switch (counter % 5)
+			switch ((int)counter % 3)
+			{
+			case 0:
+				g_pd3dDevice->SetTexture(0, g_pTexture08);
+				break;
+			case 1:
+				g_pd3dDevice->SetTexture(0, g_pTexture09);
+				break;
+			case 2:
+				g_pd3dDevice->SetTexture(0, g_pTexture10);
+				break;
+			}
+		}
+		else if (B == 3)
+		{
+			switch ((int)counter4 % 3)
 			{
 			case 0:
 				g_pd3dDevice->SetTexture(0, g_pTexture00);
@@ -288,31 +311,62 @@ VOID Render()
 				g_pd3dDevice->SetTexture(0, g_pTexture01);
 				break;
 			case 2:
-				g_pd3dDevice->SetTexture(0, g_pTexture02);
-				break;
-			case 3:
-				g_pd3dDevice->SetTexture(0, g_pTexture03);
-				break;
-			case 4:
-				g_pd3dDevice->SetTexture(0, g_pTexture04);
+				g_pd3dDevice->SetTexture(0, g_pTexture01);
 				break;
 			}
 		}
+		//attack
 		else if (B == 1)
 		{
-			switch (counter2 % 3)
+			switch ((int)counter2 % 5)
 			{
 			case 0:
-				g_pd3dDevice->SetTexture(0, g_pTexture06);
+				g_pd3dDevice->SetTexture(0, g_pTexture03);
 				break;
 			case 1:
 				g_pd3dDevice->SetTexture(0, g_pTexture04);
 				break;
 			case 2:
-				g_pd3dDevice->SetTexture(0, g_pTexture07);
+				g_pd3dDevice->SetTexture(0, g_pTexture05);
+				break;
+			case 3:
+				g_pd3dDevice->SetTexture(0, g_pTexture04);
+				break;
+			case 4:
+				g_pd3dDevice->SetTexture(0, g_pTexture03);
 				break;
 			}
 		}
+
+		//attack2
+		else if (B == 2)
+		{
+			switch ((int)counter3 % 6)
+			{
+			case 0:
+				g_pd3dDevice->SetTexture(0, g_pTexture03);
+				break;
+			case 1:
+				g_pd3dDevice->SetTexture(0, g_pTexture04);
+				break;
+			case 2:
+				g_pd3dDevice->SetTexture(0, g_pTexture05);
+				break;
+			case 3:
+				g_pd3dDevice->SetTexture(0, g_pTexture06);
+				break;
+			case 4:
+				g_pd3dDevice->SetTexture(0, g_pTexture07);
+				break;
+			case 5:
+				g_pd3dDevice->SetTexture(0, g_pTexture03);
+				break;
+			}
+		}
+
+
+		else
+			g_pd3dDevice->SetTexture(0, g_pTexture11);
 
 		// Setup our texture. Using Textures introduces the texture stage states,
 		// which govern how Textures get blended together (in the case of multiple
@@ -352,13 +406,16 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case VK_LEFT:
-			B = 0, A = A + 0.01f, counter = counter + 1;				
+			B = 0, A = A + 0.01f, counter = counter + 0.2f;				
 			break;
 		case VK_RIGHT:
-			B = 0, A = A - 0.01f, counter = counter + 1;
+			B = 3, A = A - 0.01f, counter4 = counter4 + 0.2f;
 			break;
 		case VK_SPACE:
-			B = 1, counter2 = counter2 + 1;
+			B = 1, counter2 = counter2 + 0.2f;
+			break;
+		case VK_SHIFT:
+			B = 2, counter3 = counter3 + 0.2f;
 			break;
 		}
 		return 0;
@@ -393,7 +450,7 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 
 	// Create the application's window
 	HWND hWnd = CreateWindow(L"D3D Tutorial", L"D3D Tutorial 05: Textures",
-		WS_OVERLAPPEDWINDOW, 100, 100, 500, 500,
+		WS_OVERLAPPEDWINDOW, 100, 100, 800, 800,
 		NULL, NULL, wc.hInstance, NULL);
 
 	// Initialize Direct3D
