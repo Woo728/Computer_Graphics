@@ -1,0 +1,4 @@
+﻿  Textures.cpp
+c:\users\kewcj\desktop\github\multi_textures\textures.cpp(42): warning C4100: 'hInst': 참조되지 않은 정식 매개 변수입니다.
+  Textures_2010.vcxproj -> C:\Users\kewcj\Desktop\GitHub\Multi_Textures\Debug\Textures.exe
+  Textures_2010.vcxproj -> C:\Users\kewcj\Desktop\GitHub\Multi_Textures\Debug\Textures.pdb (Full PDB)
