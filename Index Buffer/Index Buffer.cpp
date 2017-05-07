@@ -9,6 +9,7 @@
 */
 #include <d3d9.h>
 #include <d3dx9.h>
+#include <stdio.h>
 
 
 
@@ -20,11 +21,12 @@ LPDIRECT3D9             g_pD3D = NULL; /// D3D 디바이스를 생성할 D3D객체변수
 LPDIRECT3DDEVICE9       g_pd3dDevice = NULL; /// 렌더링에 사용될 D3D디바이스
 LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL; /// 정점을 보관할 정점버퍼
 LPDIRECT3DINDEXBUFFER9	g_pIB = NULL; /// 인덱스를 보관할 인덱스버퍼
+FILE *fp = fopen("data.txt", "r");
 
 									  /// 사용자 정점을 정의할 구조체
 struct CUSTOMVERTEX
 {
-	FLOAT x, y, z;	/// 정점의 변환된 좌표
+	FLOAT x, y, z;/// 정점의 변환된 좌표
 	DWORD color;	/// 정점의 색깔
 };
 
@@ -94,8 +96,17 @@ HRESULT InitD3D(HWND hWnd)
 */
 HRESULT InitVB()
 {
+	float x[8], y[8], z[8];
+
+	fseek(fp, 4L, SEEK_SET);
+
+	for (int i = 0; i < 8; i++)
+	{
+		fscanf(fp, "%f %f %f", &x[i], &y[i], &z[i]);
+	}
+
 	/// 상자(cube)를 렌더링하기위해 8개의 정점을 선언
-	CUSTOMVERTEX vertices[] =
+	/*CUSTOMVERTEX vertices[] =
 	{
 		{ -1,  1,  1 , 0xffff0000 },		/// v0
 		{ 1,  1,  1 , 0xff00ff00 },		/// v1
@@ -106,12 +117,28 @@ HRESULT InitVB()
 		{ 1, -1,  1 , 0xffff00ff },		/// v5
 		{ 1, -1, -1 , 0xff000000 },		/// v6
 		{ -1, -1, -1 , 0xffffffff },		/// v7
+	};*/
+
+	CUSTOMVERTEX vertices[] =
+	{
+		{ x[0],  y[0],  z[0], 0xffff0000 },		/// v0
+		{ x[1],  y[1],  z[1], 0xff00ff00 },		/// v1
+		{ x[2],  y[2],  z[2], 0xff0000ff },		/// v2
+		{ x[3],  y[3],  z[3], 0xffffff00 },		/// v3
+
+		{ x[4],  y[4],  z[4], 0xff00ffff },		/// v4
+		{ x[5],  y[5],  z[5], 0xffff00ff },		/// v5
+		{ x[6],  y[6],  z[6], 0xff000000 },		/// v6
+		{ x[7],  y[7],  z[7], 0xffffffff },		/// v7
 	};
 
 	/// 정점버퍼 생성
 	/// 8개의 사용자정점을 보관할 메모리를 할당한다.
 	/// FVF를 지정하여 보관할 데이터의 형식을 지정한다.
-	if (FAILED(g_pd3dDevice->CreateVertexBuffer(8 * sizeof(CUSTOMVERTEX),
+	
+	fseek(fp, 0, SEEK_SET);
+
+	if (FAILED(g_pd3dDevice->CreateVertexBuffer(fgetc(fp) * sizeof(CUSTOMVERTEX),
 		0, D3DFVF_CUSTOMVERTEX,
 		D3DPOOL_DEFAULT, &g_pVB, NULL)))
 	{
@@ -133,20 +160,42 @@ HRESULT InitVB()
 HRESULT InitIB()
 {
 	/// 상자(cube)를 렌더링하기위해 12개의 면을 선언
+	//MYINDEX	indices[] =
+	//{
+	//	{ 0, 1, 2 },{ 0, 2, 3 },	/// 윗면
+	//	{ 4, 6, 5 },{ 4, 7, 6 },	/// 아랫면
+	//	{ 0, 3, 7 },{ 0, 7, 4 },	/// 왼면
+	//	{ 1, 5, 6 },{ 1, 6, 2 },	/// 오른면
+	//	{ 3, 2, 6 },{ 3, 6, 7 },	/// 앞면
+	//	{ 0, 4, 5 },{ 0, 5, 1 }	/// 뒷면
+	//};
+
+	float a[12], b[12], c[12];
+
+	fseek(fp, -84L, SEEK_END);
+
+	for (int j = 0; j < 13; j++)
+	{
+		fscanf(fp, "%f %f %f", &a[j], &b[j], &c[j]);
+	}
+
 	MYINDEX	indices[] =
 	{
-		{ 0, 1, 2 },{ 0, 2, 3 },	/// 윗면
-		{ 4, 6, 5 },{ 4, 7, 6 },	/// 아랫면
-		{ 0, 3, 7 },{ 0, 7, 4 },	/// 왼면
-		{ 1, 5, 6 },{ 1, 6, 2 },	/// 오른면
-		{ 3, 2, 6 },{ 3, 6, 7 },	/// 앞면
-		{ 0, 4, 5 },{ 0, 5, 1 }	/// 뒷면
+		{ a[0], b[0], c[0] },{ a[1], b[1], c[1] },	/// 윗면
+		{ a[2], b[2], c[2] },{ a[3], b[3], c[3] },	/// 아랫면
+		{ a[4], b[4], c[4] },{ a[5], b[5], c[5] },	/// 왼면
+		{ a[6], b[6], c[6] },{ a[7], b[7], c[7] },	/// 오른면
+		{ a[8], b[8], c[8] },{ a[9], b[9], c[9] },	/// 앞면
+		{ a[10], b[10], c[10] },{ a[11], b[11], c[11] }	/// 뒷면
 	};
 
 	/// 인덱스버퍼 생성
 	/// D3DFMT_INDEX16은 인덱스의 단위가 16비트 라는 것이다.
 	/// 우리는 MYINDEX 구조체에서 WORD형으로 선언했으므로 D3DFMT_INDEX16을 사용한다.
-	if (FAILED(g_pd3dDevice->CreateIndexBuffer(12 * sizeof(MYINDEX), 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &g_pIB, NULL)))
+
+	fseek(fp, 1L, SEEK_SET);
+
+	if (FAILED(g_pd3dDevice->CreateIndexBuffer(fgetc(fp) * sizeof(MYINDEX), 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &g_pIB, NULL)))
 	{
 		return E_FAIL;
 	}
