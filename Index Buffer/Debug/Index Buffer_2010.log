@@ -1,0 +1,5 @@
+﻿  Index Buffer.cpp
+c:\users\kewcj\documents\visual studio projects\directxsamples\index buffer\index buffer.cpp(275): warning C4100: 'hInst': 참조되지 않은 정식 매개 변수입니다.
+Index Buffer.obj : warning LNK4075: '/EDITANDCONTINUE'이(가) '/SAFESEH' 사양으로 인해 무시됩니다.
+  Index Buffer_2010.vcxproj -> C:\Users\kewcj\Documents\Visual Studio Projects\DirectXSamples\Index Buffer\Debug\Index Buffer.exe
+  Index Buffer_2010.vcxproj -> C:\Users\kewcj\Documents\Visual Studio Projects\DirectXSamples\Index Buffer\Debug\Index Buffer.pdb (Full PDB)
