@@ -146,7 +146,7 @@ void Enemy::init(float x, float y)
 
 void Enemy::move()
 {
-	y_pos += 2;
+	x_pos -= 2;
 
 }
 
@@ -217,7 +217,7 @@ void Bullet::active()
 
 void Bullet::move()
 {
-	y_pos -= 8;
+	x_pos += 8;
 }
 
 void Bullet::hide()
@@ -424,13 +424,13 @@ void initD3D(HWND hWnd)
 void init_game(void)
 {
 	//객체 초기화 
-	hero.init(150, 300);
+	hero.init(50, 200);
 
 	//적들 초기화 
 	for (int i = 0; i<ENEMY_NUM; i++)
 	{
 
-		enemy[i].init((float)(rand() % 300), rand() % 200 - 300);
+		enemy[i].init((float)(rand() % 400 + 500), rand() % 200 + 100);
 	}
 
 	//총알 초기화 
@@ -459,8 +459,8 @@ void do_game_logic(void)
 	//적들 처리 
 	for (int i = 0; i<ENEMY_NUM; i++)
 	{
-		if (enemy[i].y_pos > 500)
-			enemy[i].init((float)(rand() % 300), rand() % 200 - 300);
+		if (enemy[i].x_pos < 0)
+			enemy[i].init((float)(rand() % 400 + 500), rand() % 200 + 100);
 		else
 			enemy[i].move();
 	}
@@ -481,7 +481,7 @@ void do_game_logic(void)
 
 	if (bullet.show() == true)
 	{
-		if (bullet.y_pos < -70)
+		if (bullet.x_pos < 0)
 			bullet.hide();
 		else
 			bullet.move();
@@ -492,7 +492,7 @@ void do_game_logic(void)
 		{
 			if (bullet.check_collision(enemy[i].x_pos, enemy[i].y_pos) == true)
 			{
-				enemy[i].init((float)(rand() % 300), rand() % 200 - 300);
+				enemy[i].init((float)(rand() % 400 + 500), rand() % 200 + 100);
 
 			}
 		}
