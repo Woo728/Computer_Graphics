@@ -23,10 +23,10 @@
 LPDIRECT3D9 d3d;    // the pointer to our Direct3D interface
 LPDIRECT3DDEVICE9 d3ddev;    // the pointer to the device class
 LPD3DXSPRITE d3dspt;    // the pointer to our Direct3D Sprite interface
+LPD3DXFONT dxfont;    // the pointer to the font object
 
 
-
-						// sprite declarations
+// sprite declarations
 LPDIRECT3DTEXTURE9 sprite;    // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_hero;    // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_enemy;    // the pointer to the sprite
@@ -274,6 +274,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	//게임 오브젝트 초기화 
 	init_game();
 
+
 	// enter the main loop:
 
 	MSG msg;
@@ -304,6 +305,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 		while ((GetTickCount() - starting_point) < 25);
 	}
+
 
 	// clean up DirectX and COM
 	cleanD3D();
@@ -371,7 +373,7 @@ void initD3D(HWND hWnd)
 
 
 	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
-		L"hero.png",    // the file name
+		L"A_R3.png",    // the file name
 		D3DX_DEFAULT,    // default width
 		D3DX_DEFAULT,    // default height
 		D3DX_DEFAULT,    // no mip mapping
@@ -386,7 +388,7 @@ void initD3D(HWND hWnd)
 		&sprite_hero);    // load to sprite
 
 	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
-		L"enemy.png",    // the file name
+		L"A_A3.png",    // the file name
 		D3DX_DEFAULT,    // default width
 		D3DX_DEFAULT,    // default height
 		D3DX_DEFAULT,    // no mip mapping
@@ -402,7 +404,7 @@ void initD3D(HWND hWnd)
 
 
 	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
-		L"bullet.png",    // the file name
+		L"A_P3.png",    // the file name
 		D3DX_DEFAULT,    // default width
 		D3DX_DEFAULT,    // default height
 		D3DX_DEFAULT,    // no mip mapping
@@ -416,8 +418,18 @@ void initD3D(HWND hWnd)
 		NULL,    // not using 256 colors
 		&sprite_bullet);    // load to sprite
 
-
-
+	D3DXCreateFont(d3ddev,    // the D3D Device
+		30,    // font height of 30
+		0,    // default font width
+		FW_BOLD,    // font weight
+		1,    // not using MipLevels
+		false,    // italic font
+		DEFAULT_CHARSET,    // default character set
+		OUT_DEFAULT_PRECIS,    // default OutputPrecision,
+		DEFAULT_QUALITY,    // default Quality
+		DEFAULT_PITCH | FF_DONTCARE,    // default pitch and family
+		L"Arial",    // use Facename Arial
+		&dxfont);    // the font object
 
 
 	return;
@@ -516,6 +528,19 @@ void render_frame(void)
 
 	d3ddev->BeginScene();    // begins the 3D scene
 
+
+	// create a RECT to contain the text
+	static RECT textbox; SetRect(&textbox, 0, 0, 1080, 850);
+
+	// draw the Hello World text
+	dxfont->DrawTextA(NULL,
+		"SCORE :",
+		20,
+		&textbox,
+		DT_CENTER | DT_VCENTER,
+		D3DCOLOR_ARGB(255, 255, 255, 255));
+
+
 	d3dspt->Begin(D3DXSPRITE_ALPHABLEND);    // // begin sprite drawing with transparency
 
 											 //UI 창 렌더링 
@@ -566,7 +591,7 @@ void render_frame(void)
 		d3dspt->Draw(sprite_enemy, &part2, &center2, &position2, D3DCOLOR_ARGB(255, 255, 255, 255));
 	}
 
-
+	
 
 	d3dspt->End();    // end sprite drawing
 
