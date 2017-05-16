@@ -4,6 +4,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <iostream>
+#include <stdio.h>
 
 // define the screen resolution and keyboard macros
 #define SCREEN_WIDTH  640
@@ -101,21 +102,21 @@ void Hero::move(int i)
 	switch (i)
 	{
 	case MOVE_UP:
-		y_pos -= 3;
+		y_pos -= 8;
 		break;
 
 	case MOVE_DOWN:
-		y_pos += 3;
+		y_pos += 8;
 		break;
 
 
 	case MOVE_LEFT:
-		x_pos -= 3;
+		x_pos -= 6;
 		break;
 
 
 	case MOVE_RIGHT:
-		x_pos += 3;
+		x_pos += 6;
 		break;
 
 	}
@@ -146,7 +147,7 @@ void Enemy::init(float x, float y)
 
 void Enemy::move()
 {
-	x_pos -= 2;
+	x_pos -= 5;
 
 }
 
@@ -160,6 +161,7 @@ class Bullet :public entity {
 
 public:
 	bool bShow;
+	int score = 0;
 
 	void init(float x, float y);
 	void move();
@@ -179,6 +181,7 @@ bool Bullet::check_collision(float x, float y)
 	if (sphere_collision_check(x_pos, y_pos, 32, x, y, 32) == true)
 	{
 		bShow = false;
+		score = score + 10;
 		return true;
 
 	}
@@ -217,7 +220,7 @@ void Bullet::active()
 
 void Bullet::move()
 {
-	x_pos += 8;
+	x_pos += 20;
 }
 
 void Bullet::hide()
@@ -250,7 +253,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	ZeroMemory(&wc, sizeof(WNDCLASSEX));
 
 	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW;
+	wc.style = CS_CLASSDC; //CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = (WNDPROC)WindowProc;
 	wc.hInstance = hInstance;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -259,7 +262,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	RegisterClassEx(&wc);
 
 	hWnd = CreateWindowEx(NULL, L"WindowClass", L"Our Direct3D Program",
-		WS_EX_TOPMOST | WS_POPUP, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+		WS_EX_TOPMOST | WS_OVERLAPPEDWINDOW, 250, 250, 1000, 500,
 		NULL, NULL, hInstance, NULL);
 
 	ShowWindow(hWnd, nCmdShow);
@@ -333,12 +336,12 @@ void initD3D(HWND hWnd)
 	D3DPRESENT_PARAMETERS d3dpp;
 
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
-	d3dpp.Windowed = FALSE;
+	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.hDeviceWindow = hWnd;
-	d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
-	d3dpp.BackBufferWidth = SCREEN_WIDTH;
-	d3dpp.BackBufferHeight = SCREEN_HEIGHT;
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;//X8R8G8B8;
+	//d3dpp.BackBufferWidth = SCREEN_WIDTH;
+	//d3dpp.BackBufferHeight = SCREEN_HEIGHT;
 
 
 	// create a device class using this information and the info from the d3dpp stuct
@@ -430,7 +433,7 @@ void init_game(void)
 	for (int i = 0; i<ENEMY_NUM; i++)
 	{
 
-		enemy[i].init((float)(rand() % 400 + 500), rand() % 200 + 100);
+		enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
 	}
 
 	//총알 초기화 
@@ -460,7 +463,7 @@ void do_game_logic(void)
 	for (int i = 0; i<ENEMY_NUM; i++)
 	{
 		if (enemy[i].x_pos < 0)
-			enemy[i].init((float)(rand() % 400 + 500), rand() % 200 + 100);
+			enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
 		else
 			enemy[i].move();
 	}
@@ -481,7 +484,7 @@ void do_game_logic(void)
 
 	if (bullet.show() == true)
 	{
-		if (bullet.x_pos < 0)
+		if (bullet.x_pos > 1000)
 			bullet.hide();
 		else
 			bullet.move();
@@ -492,7 +495,7 @@ void do_game_logic(void)
 		{
 			if (bullet.check_collision(enemy[i].x_pos, enemy[i].y_pos) == true)
 			{
-				enemy[i].init((float)(rand() % 400 + 500), rand() % 200 + 100);
+				enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
 
 			}
 		}
@@ -533,7 +536,7 @@ void render_frame(void)
 											 d3dspt->Draw(sprite, &part, &center, &position, D3DCOLOR_ARGB(127, 255, 255, 255));
 											 */
 
-											 //주인공 
+	////주인공 
 	RECT part;
 	SetRect(&part, 0, 0, 64, 64);
 	D3DXVECTOR3 center(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
