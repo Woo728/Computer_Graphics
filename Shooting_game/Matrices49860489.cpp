@@ -31,6 +31,10 @@ int t_score = 0;
 int s_score = 0;
 char str[100];
 
+// ½Ã°£
+FLOAT		t = .0f;			
+DWORD		dwOldTime = 0;
+
 // sprite declarations
 LPDIRECT3DTEXTURE9 sprite;    // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_hero;    // the pointer to the sprite
@@ -106,21 +110,21 @@ void Hero::move(int i)
 	switch (i)
 	{
 	case MOVE_UP:
-		y_pos -= 8;
+		y_pos -= 8 * t;
 		break;
 
 	case MOVE_DOWN:
-		y_pos += 8;
+		y_pos += 8 * t;
 		break;
 
 
 	case MOVE_LEFT:
-		x_pos -= 6;
+		x_pos -= 6 * t;
 		break;
 
 
 	case MOVE_RIGHT:
-		x_pos += 6;
+		x_pos += 6 * t;
 		break;
 
 	}
@@ -164,7 +168,7 @@ void Enemy::init(float x, float y)
 
 void Enemy::move()
 {
-	x_pos -= 1;
+	x_pos -= 1 * t;
 
 }
 
@@ -238,7 +242,7 @@ void Bullet::active()
 
 void Bullet::move()
 {
-	x_pos += 20;
+	x_pos += 20 * t;
 }
 
 void Bullet::hide()
@@ -549,6 +553,9 @@ void do_game_logic(void)
 // this is the function used to render a single frame
 void render_frame(void)
 {
+	t = (timeGetTime() - dwOldTime) *.05f;
+	dwOldTime = timeGetTime();
+
 	// clear the window to a deep blue
 	d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
