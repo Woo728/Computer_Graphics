@@ -5,9 +5,6 @@
 #include <d3dx9.h>
 #include <iostream>
 #include <stdio.h>
-#include <string>
-#include <string.h> 
-using namespace std;
 
 // define the screen resolution and keyboard macros
 #define SCREEN_WIDTH  640
@@ -15,7 +12,8 @@ using namespace std;
 #define KEY_DOWN(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #define KEY_UP(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 0 : 1)
 
-#define ENEMY_NUM 10 
+#define ENEMY_NUM 10
+#define BULLET_NUM 100
 
 
 // include the Direct3D Library file
@@ -30,6 +28,7 @@ LPD3DXFONT dxfont;    // the pointer to the font object
 int t_score = 0;
 int s_score = 0;
 char str[100];
+bool keyup;
 
 // 시간
 FLOAT		t = .0f;			
@@ -181,7 +180,7 @@ void Enemy::move()
 class Bullet :public entity {
 
 public:
-	bool bShow;
+	bool bShow = false;
 	int score = 0;
 
 	void init(float x, float y);
@@ -259,7 +258,7 @@ void Bullet::hide()
 //객체 생성 
 Hero hero;
 Enemy enemy[ENEMY_NUM];
-Bullet bullet;
+Bullet bullet[BULLET_NUM];
 
 
 
@@ -346,6 +345,15 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		PostQuitMessage(0);
 		return 0;
 	} break;
+	case WM_KEYUP:
+	{
+		switch (wParam)
+		{
+		case VK_SPACE:
+			keyup = true;       
+			break;
+		}
+	}break;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -471,9 +479,11 @@ void init_game(void)
 		enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
 	}
 
-	//총알 초기화 
-	bullet.init(hero.x_pos, hero.y_pos);
-
+	//총알 초기화
+	for (int i = 0; i < BULLET_NUM; i++)
+	{
+		bullet[i].init(hero.x_pos + 0.5f, hero.y_pos);
+	}
 }
 
 
@@ -492,18 +502,18 @@ void do_game_logic(void)
 
 	if (KEY_DOWN(VK_RIGHT))
 		hero.move(MOVE_RIGHT);
-	
+
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
 		if (hero.check_collision(enemy[i].x_pos, enemy[i].y_pos) == true)
 		{
 			hero.HP--;
-		enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
+			enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
 		}
 	}
 
 	//적들 처리 
-	for (int i = 0; i<ENEMY_NUM; i++)
+	for (int i = 0; i < ENEMY_NUM; i++)
 	{
 		if (enemy[i].x_pos < 0)
 			enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
@@ -512,43 +522,99 @@ void do_game_logic(void)
 	}
 
 
-	//총알 처리 
-	if (bullet.show() == false)
-	{
-		if (KEY_DOWN(VK_SPACE))
-		{
-			bullet.active();
-			bullet.init(hero.x_pos, hero.y_pos);
-		}
+	//총알 처리
 
+
+
+	if (KEY_DOWN(VK_SPACE))
+	{
+		if (keyup == true)
+		{
+			for (int i = 0; i < BULLET_NUM; i++)
+			{
+				if (bullet[i].show() == false)
+				{
+					bullet[i].active();
+					bullet[i].init(hero.x_pos + 0.5f, hero.y_pos);
+					break;
+				}
+			}
+			keyup = false;
+		}
+	}
+
+	for (int i = 0; i < BULLET_NUM; i++)
+	{
+		if (bullet[i].show() == true)
+		{
+			if (bullet[i].x_pos > 1000)
+				bullet[i].hide();
+			else
+				bullet[i].move();
+		}
 
 	}
 
-
-	if (bullet.show() == true)
+	for (int i = 0; i < BULLET_NUM; i++)
 	{
-		if (bullet.x_pos > 1000)
-			bullet.hide();
-		else
-			bullet.move();
-
-
-		//충돌 처리 
-		for (int i = 0; i<ENEMY_NUM; i++)
+		if (bullet[i].show() == true)
 		{
-			if (bullet.check_collision(enemy[i].x_pos, enemy[i].y_pos) == true)
+			for (int j = 0; j < ENEMY_NUM; j++)
 			{
-				enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
+				if (bullet[i].check_collision(enemy[j].x_pos, enemy[j].y_pos) == true)
+				{
+					enemy[j].init((float)(rand() % 300 + 900), rand() % 200 + 100);
+					bullet[i].hide();
+				}
 			}
 		}
-
-
-
 	}
 
+	//for (int i = 0; i < BULLET_NUM; i++)
+	//{
+	//	if (bullet[i].show() == false)
+	//	{
+
+	//		if (KEY_DOWN(VK_SPACE))
+	//		{
+	//			for (int j = 0; j < BULLET_NUM; ++j)
+	//			{
+	//				bullet[j].active();
+	//				bullet[j].init(hero.x_pos, hero.y_pos);
+	//			}
+	//		}
+	//	}
+	//}
+
+	//for (int i = 0; i < BULLET_NUM; i++)
+	//{
+	//	if (bullet[i].show() == true)
+	//	{
+	//		if (bullet[i].x_pos > 1000)
+	//			bullet[i].hide();
+	//		else
+	//			bullet[i].move();
 
 
+	//		//충돌 처리 
+	//		for (int j = 0; j < ENEMY_NUM; j++)
+	//		{
+	//			if (bullet[i].check_collision(enemy[j].x_pos, enemy[j].y_pos) == true)
+	//			{
+	//				enemy[j].init((float)(rand() % 300 + 900), rand() % 200 + 100);
+	//				bullet[i].hide();
+	//			}
+	//		}
+	//	}
+	//}
 }
+	
+
+
+		
+		
+	
+
 
 // this is the function used to render a single frame
 void render_frame(void)
@@ -630,13 +696,16 @@ void render_frame(void)
 	d3dspt->Draw(sprite_hero, &part, &center, &position, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 	////총알 
-	if (bullet.bShow == true)
+	for (int i = 0; i < BULLET_NUM; i++)
 	{
-		RECT part1;
-		SetRect(&part1, 0, 0, 64, 64);
-		D3DXVECTOR3 center1(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
-		D3DXVECTOR3 position1(bullet.x_pos, bullet.y_pos, 0.0f);    // position at 50, 50 with no depth
-		d3dspt->Draw(sprite_bullet, &part1, &center1, &position1, D3DCOLOR_ARGB(255, 255, 255, 255));
+		if (bullet[i].bShow == true)
+		{
+			RECT part1;
+			SetRect(&part1, 0, 0, 64, 64);
+			D3DXVECTOR3 center1(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
+			D3DXVECTOR3 position1(bullet[i].x_pos, bullet[i].y_pos, 0.0f);    // position at 50, 50 with no depth
+			d3dspt->Draw(sprite_bullet, &part1, &center1, &position1, D3DCOLOR_ARGB(255, 255, 255, 255));
+		}
 	}
 
 
