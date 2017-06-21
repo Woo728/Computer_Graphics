@@ -5,6 +5,9 @@
 #include <d3dx9.h>
 #include <iostream>
 #include <stdio.h>
+#include <string>
+#include <string.h> 
+using namespace std;
 
 // define the screen resolution and keyboard macros
 #define SCREEN_WIDTH  640
@@ -24,7 +27,9 @@ LPDIRECT3D9 d3d;    // the pointer to our Direct3D interface
 LPDIRECT3DDEVICE9 d3ddev;    // the pointer to the device class
 LPD3DXSPRITE d3dspt;    // the pointer to our Direct3D Sprite interface
 LPD3DXFONT dxfont;    // the pointer to the font object
-
+int t_score = 0;
+int s_score = 0;
+char str[100];
 
 // sprite declarations
 LPDIRECT3DTEXTURE9 sprite;    // the pointer to the sprite
@@ -85,8 +90,7 @@ public:
 	void super_fire();
 	void move(int i);
 	void init(float x, float y);
-
-
+	bool check_collision(float x, float y);
 };
 
 void Hero::init(float x, float y)
@@ -123,6 +127,19 @@ void Hero::move(int i)
 
 }
 
+bool Hero::check_collision(float x, float y)
+{
+
+	//충돌 처리 시 
+	if (sphere_collision_check(x_pos, y_pos, 32, x, y, 32) == true)
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 
 
 
@@ -147,7 +164,7 @@ void Enemy::init(float x, float y)
 
 void Enemy::move()
 {
-	x_pos -= 5;
+	x_pos -= 1;
 
 }
 
@@ -181,7 +198,8 @@ bool Bullet::check_collision(float x, float y)
 	if (sphere_collision_check(x_pos, y_pos, 32, x, y, 32) == true)
 	{
 		bShow = false;
-		score = score + 10;
+		t_score = t_score + 10;
+		s_score = s_score + 10;
 		return true;
 
 	}
@@ -419,9 +437,9 @@ void initD3D(HWND hWnd)
 		&sprite_bullet);    // load to sprite
 
 	D3DXCreateFont(d3ddev,    // the D3D Device
-		30,    // font height of 30
+		20,    // font height of 30
 		0,    // default font width
-		FW_BOLD,    // font weight
+		0,    // font weight
 		1,    // not using MipLevels
 		false,    // italic font
 		DEFAULT_CHARSET,    // default character set
@@ -440,6 +458,7 @@ void init_game(void)
 {
 	//객체 초기화 
 	hero.init(50, 200);
+	hero.HP = 6;
 
 	//적들 초기화 
 	for (int i = 0; i<ENEMY_NUM; i++)
@@ -469,7 +488,15 @@ void do_game_logic(void)
 
 	if (KEY_DOWN(VK_RIGHT))
 		hero.move(MOVE_RIGHT);
-
+	
+	for (int i = 0; i < ENEMY_NUM; i++)
+	{
+		if (hero.check_collision(enemy[i].x_pos, enemy[i].y_pos) == true)
+		{
+			hero.HP--;
+		enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
+		}
+	}
 
 	//적들 처리 
 	for (int i = 0; i<ENEMY_NUM; i++)
@@ -508,7 +535,6 @@ void do_game_logic(void)
 			if (bullet.check_collision(enemy[i].x_pos, enemy[i].y_pos) == true)
 			{
 				enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
-
 			}
 		}
 
@@ -530,15 +556,43 @@ void render_frame(void)
 
 
 	// create a RECT to contain the text
-	static RECT textbox; SetRect(&textbox, 0, 0, 1080, 850);
+	static RECT textbox;
 
-	// draw the Hello World text
-	dxfont->DrawTextA(NULL,
-		"SCORE :",
-		20,
-		&textbox,
-		DT_CENTER | DT_VCENTER,
-		D3DCOLOR_ARGB(255, 255, 255, 255));
+	SetRect(&textbox, 10, 20, 0, 0);
+
+	sprintf( str, "Total Score : %d    Stage Score : %d", t_score, s_score);
+
+	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
+
+
+	SetRect(&textbox, 10, 420, 0, 0);
+	switch (hero.HP)
+	{
+	case 6:
+		sprintf(str, "HP ♥ ♥ ♥");
+		break;
+	case 5:
+		sprintf(str, "HP ♥ ♥ ♡");
+		break;
+	case 4:
+		sprintf(str, "HP ♥ ♥");
+		break;
+	case 3:
+		sprintf(str, "HP ♥ ♡");
+		break;
+	case 2:
+		sprintf(str, "HP ♥");
+		break;
+	case 1:
+		sprintf(str, "HP ♡");
+		break;
+	case 0:
+		sprintf(str, "game over");
+		break;
+	}
+
+	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
+
 
 
 	d3dspt->Begin(D3DXSPRITE_ALPHABLEND);    // // begin sprite drawing with transparency
