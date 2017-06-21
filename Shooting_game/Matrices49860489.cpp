@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 // define the screen resolution and keyboard macros
-#define SCREEN_WIDTH  640
-#define SCREEN_HEIGHT 480
+#define SCREEN_WIDTH  800
+#define SCREEN_HEIGHT 600
 #define KEY_DOWN(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #define KEY_UP(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 0 : 1)
 
@@ -274,7 +274,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	ZeroMemory(&wc, sizeof(WNDCLASSEX));
 
 	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_CLASSDC; //CS_HREDRAW | CS_VREDRAW;
+	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = (WNDPROC)WindowProc;
 	wc.hInstance = hInstance;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -282,8 +282,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	RegisterClassEx(&wc);
 
-	hWnd = CreateWindowEx(NULL, L"WindowClass", L"Our Direct3D Program",
-		WS_EX_TOPMOST | WS_OVERLAPPEDWINDOW, 250, 250, 1000, 500,
+	hWnd = CreateWindowEx(NULL, L"WindowClass", L"street flight",
+		WS_EX_TOPMOST | WS_POPUP, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
 		NULL, NULL, hInstance, NULL);
 
 	ShowWindow(hWnd, nCmdShow);
@@ -368,12 +368,12 @@ void initD3D(HWND hWnd)
 	D3DPRESENT_PARAMETERS d3dpp;
 
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
-	d3dpp.Windowed = TRUE;
+	d3dpp.Windowed = FALSE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.hDeviceWindow = hWnd;
-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;//X8R8G8B8;
-	//d3dpp.BackBufferWidth = SCREEN_WIDTH;
-	//d3dpp.BackBufferHeight = SCREEN_HEIGHT;
+	d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
+	d3dpp.BackBufferWidth = SCREEN_WIDTH;
+	d3dpp.BackBufferHeight = SCREEN_HEIGHT;
 
 
 	// create a device class using this information and the info from the d3dpp stuct
@@ -387,9 +387,9 @@ void initD3D(HWND hWnd)
 	D3DXCreateSprite(d3ddev, &d3dspt);    // create the Direct3D Sprite object
 
 	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
-		L"Panel3.png",    // the file name
-		D3DX_DEFAULT,    // default width
-		D3DX_DEFAULT,    // default height
+		L"nightskycut.png",    // the file name
+		800,    // default width
+		560,    // default height
 		D3DX_DEFAULT,    // no mip mapping
 		NULL,    // regular usage
 		D3DFMT_A8R8G8B8,    // 32-bit pixels with alpha
@@ -469,14 +469,14 @@ void initD3D(HWND hWnd)
 void init_game(void)
 {
 	//객체 초기화 
-	hero.init(50, 200);
+	hero.init(50, 250);
 	hero.HP = 6;
 
 	//적들 초기화 
 	for (int i = 0; i<ENEMY_NUM; i++)
 	{
 
-		enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
+		enemy[i].init((float)(rand() % 300 + 700), rand() % 300 + 100);
 	}
 
 	//총알 초기화
@@ -508,7 +508,7 @@ void do_game_logic(void)
 		if (hero.check_collision(enemy[i].x_pos, enemy[i].y_pos) == true)
 		{
 			hero.HP--;
-			enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
+			enemy[i].init((float)(rand() % 300 + 700), rand() % 300 + 100);
 		}
 	}
 
@@ -516,7 +516,7 @@ void do_game_logic(void)
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
 		if (enemy[i].x_pos < 0)
-			enemy[i].init((float)(rand() % 300 + 900), rand() % 200 + 100);
+			enemy[i].init((float)(rand() % 300 + 700), rand() % 300 + 100);
 		else
 			enemy[i].move();
 	}
@@ -563,7 +563,7 @@ void do_game_logic(void)
 			{
 				if (bullet[i].check_collision(enemy[j].x_pos, enemy[j].y_pos) == true)
 				{
-					enemy[j].init((float)(rand() % 300 + 900), rand() % 200 + 100);
+					enemy[j].init((float)(rand() % 300 + 700), rand() % 300 + 100);
 					bullet[i].hide();
 				}
 			}
@@ -628,6 +628,9 @@ void render_frame(void)
 	d3ddev->BeginScene();    // begins the 3D scene
 
 
+	
+
+
 	// create a RECT to contain the text
 	static RECT textbox;
 
@@ -638,26 +641,26 @@ void render_frame(void)
 	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
 
 
-	SetRect(&textbox, 10, 420, 0, 0);
+	SetRect(&textbox, 10, 560, 0, 0);
 	switch (hero.HP)
 	{
 	case 6:
-		sprintf(str, "HP ♥ ♥ ♥");
+		sprintf(str, "HP ♥ ♥ ♥ ♥ ♥ ♥");
 		break;
 	case 5:
-		sprintf(str, "HP ♥ ♥ ♡");
+		sprintf(str, "HP ♥ ♥ ♥ ♥ ♥");
 		break;
 	case 4:
-		sprintf(str, "HP ♥ ♥");
+		sprintf(str, "HP ♥ ♥ ♥ ♥");
 		break;
 	case 3:
-		sprintf(str, "HP ♥ ♡");
+		sprintf(str, "HP ♥ ♥ ♥");
 		break;
 	case 2:
-		sprintf(str, "HP ♥");
+		sprintf(str, "HP ♥ ♥");
 		break;
 	case 1:
-		sprintf(str, "HP ♡");
+		sprintf(str, "HP ♥");
 		break;
 	case 0:
 		sprintf(str, "game over");
@@ -687,6 +690,13 @@ void render_frame(void)
 											 D3DXVECTOR3 position(150.0f, 50.0f, 0.0f);    // position at 50, 50 with no depth
 											 d3dspt->Draw(sprite, &part, &center, &position, D3DCOLOR_ARGB(127, 255, 255, 255));
 											 */
+
+	//BACKGROUND
+	RECT part0;
+	SetRect(&part0, 0, 50, 800, 550);
+	D3DXVECTOR3 center0(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
+	D3DXVECTOR3 position0(0.0f, 50.0f, 0.0f);    // position at 50, 50 with no depth
+	d3dspt->Draw(sprite, &part0, &center0, &position0, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 	////주인공 
 	RECT part;
