@@ -54,6 +54,7 @@ LPDIRECT3DTEXTURE9 sprite_hero1; // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_enemy;    // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_bullet;    // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_explosion;
+LPDIRECT3DTEXTURE9 sprite_skill;
 LPDIRECTSOUNDBUFFER   g_lpDSBG[2] = { NULL, };
 
 
@@ -221,7 +222,6 @@ bool Bullet::check_collision(float x, float y)
 	//충돌 처리 시 
 	if (sphere_collision_check(x_pos, y_pos, 32, x, y, 32) == true)
 	{
-		bShow = false;
 		t_score = t_score + 10;
 		return true;
 
@@ -274,6 +274,7 @@ void Bullet::hide()
 Hero hero;
 Enemy enemy[ENEMY_NUM];
 Bullet bullet[BULLET_NUM];
+Bullet skill;
 CSound sound;
 
 
@@ -410,46 +411,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	}
 	}
 
-	//게임 오브젝트 초기화 
-	//init_game();
-
-
-	//sound.PlaySoundBG(1);
-	//
-
-	//while (TRUE)
-	//{
-	//	starttime = timeGetTime();
-	//	DWORD starting_point = GetTickCount();
-	//	sound.Update();
-	//	
-	//	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	//	{
-	//		if (msg.message == WM_QUIT)
-	//			break;
-
-	//		TranslateMessage(&msg);
-	//		DispatchMessage(&msg);
-	//	}
-
-	//	do_game_logic();
-
-	//	render_frame();
-
-	//	// check the 'escape' key
-	//	if (KEY_DOWN(VK_ESCAPE))
-	//		PostMessage(hWnd, WM_DESTROY, 0, 0);
-
-
-
-
-	//	while ((GetTickCount() - starting_point) < 10);
-	//	
-	//	endtime = timeGetTime();
-	//	playtime += (endtime - starttime);
-	//}
-
-	//sound.StopSoundBG(1);
 	
 	// clean up DirectX and COM
 	cleanD3D();
@@ -606,6 +567,21 @@ void initD3D(HWND hWnd)
 		NULL,    // not using 256 colors
 		&sprite_explosion);    // load to sprite
 
+	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
+		L"img\\skill.png",    // the file name
+		300,    // default width
+		100,    // default height
+		D3DX_DEFAULT,    // no mip mapping
+		NULL,    // regular usage
+		D3DFMT_A8R8G8B8,    // 32-bit pixels with alpha
+		D3DPOOL_MANAGED,    // typical memory handling
+		D3DX_DEFAULT,    // no filtering
+		D3DX_DEFAULT,    // no mip filtering
+		D3DCOLOR_XRGB(255, 0, 255),    // the hot-pink color key
+		NULL,    // no image info struct
+		NULL,    // not using 256 colors
+		&sprite_skill);    // load to sprite
+
 	D3DXCreateFont(d3ddev,    // the D3D Device
 		20,    // font height of 30
 		0,    // default font width
@@ -655,7 +631,9 @@ void init_game(void)
 		bullet[i].init(hero.x_pos + 0.5f, hero.y_pos);
 	}
 
-	
+	//스킬 초기화
+	skill.init(hero.x_pos + 0.5f, hero.y_pos);
+
 
 	/*string strBGFileName[] = { "sound\\Naruto_bgm.mp3" };
 	string strEFFFileName[] = { "sound\\suriken.mp3", "sound\\bomb.mp3", "sound\\whip.mp3" };
@@ -702,7 +680,31 @@ void do_game_logic(void)
 
 	//총알 처리
 
-
+	if (KEY_DOWN(VK_LSHIFT))
+	{
+		if (skill.show() == false)
+		{
+			skill.active();
+			skill.init(hero.x_pos + 0.5f, hero.y_pos);
+		}
+	}
+	if (skill.show() == true)
+	{
+		if (skill.x_pos > 1000)
+			skill.hide();
+		else
+			skill.move();
+	}
+	if (skill.show() == true)
+	{
+		for (int i = 0; i < ENEMY_NUM; i++)
+		{
+			if (skill.check_collision(enemy[i].x_pos, enemy[i].y_pos) == true)
+			{
+				enemy[i].init((float)(rand() % 300 + 700), rand() % 430 + 60);
+			}
+		}
+	}
 
 	if (KEY_DOWN(VK_SPACE))
 	{
@@ -752,11 +754,6 @@ void do_game_logic(void)
 
 
 }
-	
-
-
-		
-		
 	
 
 
@@ -823,6 +820,11 @@ void render_frame(void)
 	if(KEY_UP(VK_SPACE))
 		flag_hero = false;
 
+	if (KEY_DOWN(VK_LSHIFT))
+		flag_hero = true;
+	if (KEY_UP(VK_LSHIFT))
+		flag_hero = false;
+
 	switch (flag_hero)
 	{
 	case false:
@@ -845,6 +847,7 @@ void render_frame(void)
 		////주인공 공격시
 		static double frame_a = 5.0;
 		if (KEY_DOWN(VK_SPACE)) frame_a = 0.0;
+		if (KEY_DOWN(VK_LSHIFT)) frame_a = 0.0;
 		if (frame_a < 5.0) frame_a = frame_a + 0.5;
 
 		int xpos_a = (int)frame_a * 64;
@@ -874,6 +877,15 @@ void render_frame(void)
 			D3DXVECTOR3 position1(bullet[i].x_pos, bullet[i].y_pos, 0.0f);    // position at 50, 50 with no depth
 			d3dspt->Draw(sprite_bullet, &part1, &center1, &position1, D3DCOLOR_ARGB(255, 255, 255, 255));
 		}
+	}
+
+	if (skill.bShow == true)
+	{
+		RECT part_s;
+		SetRect(&part_s, 0, 0, 300, 100);
+		D3DXVECTOR3 center_s(0.0f, 20.0f, 0.0f);    // center at the upper-left corner
+		D3DXVECTOR3 position_s(skill.x_pos, skill.y_pos, 0.0f);    // position at 50, 50 with no depth
+		d3dspt->Draw(sprite_skill, &part_s, &center_s, &position_s, D3DCOLOR_ARGB(255, 255, 255, 255));
 	}
 
 
@@ -936,36 +948,6 @@ void render_frame1(void)
 	d3ddev->BeginScene();    // begins the 3D scene
 
 
-	/*SetRect(&textbox, 10, 560, 0, 0);
-	switch (hero.HP)
-	{
-	case 6:
-		sprintf(str, "HP ♥ ♥ ♥ ♥ ♥ ♥");
-		break;
-	case 5:
-		sprintf(str, "HP ♥ ♥ ♥ ♥ ♥");
-		break;
-	case 4:
-		sprintf(str, "HP ♥ ♥ ♥ ♥");
-		break;
-	case 3:
-		sprintf(str, "HP ♥ ♥ ♥");
-		break;
-	case 2:
-		sprintf(str, "HP ♥ ♥");
-		break;
-	case 1:
-		sprintf(str, "HP ♥");
-		break;
-	case 0:
-		sprintf(str, "game over");
-		break;
-	}
-
-	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
-*/
-
-
 	d3dspt->Begin(D3DXSPRITE_ALPHABLEND);
 
 
@@ -1005,36 +987,6 @@ void render_frame2(void)
 	d3ddev->BeginScene();    // begins the 3D scene
 
 
-	/*SetRect(&textbox, 10, 560, 0, 0);
-	switch (hero.HP)
-	{
-	case 6:
-	sprintf(str, "HP ♥ ♥ ♥ ♥ ♥ ♥");
-	break;
-	case 5:
-	sprintf(str, "HP ♥ ♥ ♥ ♥ ♥");
-	break;
-	case 4:
-	sprintf(str, "HP ♥ ♥ ♥ ♥");
-	break;
-	case 3:
-	sprintf(str, "HP ♥ ♥ ♥");
-	break;
-	case 2:
-	sprintf(str, "HP ♥ ♥");
-	break;
-	case 1:
-	sprintf(str, "HP ♥");
-	break;
-	case 0:
-	sprintf(str, "game over");
-	break;
-	}
-
-	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
-	*/
-
-
 	d3dspt->Begin(D3DXSPRITE_ALPHABLEND);
 
 
@@ -1051,7 +1003,7 @@ void render_frame2(void)
 	sprintf(str, "GAME OVER");
 	dxfont1->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
 
-	SetRect(&textbox, 250, 280, 0, 0);
+	SetRect(&textbox, 245, 280, 0, 0);
 	sprintf(str, "Your score : %d & playtime : %3.3f sec", t_score, (playtime/1000));
 	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
 

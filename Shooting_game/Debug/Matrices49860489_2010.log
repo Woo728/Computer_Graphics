@@ -1,13 +1,16 @@
 ﻿  Main.cpp
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(352): warning C4244: '=': 'DWORD'에서 'FLOAT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(378): warning C4244: '=': 'DWORD'에서 'FLOAT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(284): warning C4100: 'lpCmdLine': 참조되지 않은 정식 매개 변수입니다.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(283): warning C4100: 'hPrevInstance': 참조되지 않은 정식 매개 변수입니다.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(649): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(689): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(697): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(746): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(781): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(353): warning C4244: '=': 'DWORD'에서 'FLOAT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(379): warning C4244: '=': 'DWORD'에서 'FLOAT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(285): warning C4100: 'lpCmdLine': 참조되지 않은 정식 매개 변수입니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(284): warning C4100: 'hPrevInstance': 참조되지 않은 정식 매개 변수입니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(625): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(667): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(675): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(704): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(748): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(778): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(787): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
 c:\users\kewcj\desktop\github\shooting_game\main.cpp(790): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
@@ -17,18 +20,16 @@ c:\users\kewcj\desktop\github\shooting_game\main.cpp(796): warning C4996: 'sprin
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
 c:\users\kewcj\desktop\github\shooting_game\main.cpp(799): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(802): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(963): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(981): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(967): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(985): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(1003): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(1051): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(1007): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(1055): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(1011): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(1059): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: 'sprintf' 선언을 참조하십시오.
-c:\users\kewcj\desktop\github\shooting_game\main.cpp(457): warning C4701: 초기화되지 않았을 수 있는 'msg' 지역 변수를 사용했습니다.
+c:\users\kewcj\desktop\github\shooting_game\main.cpp(418): warning C4701: 초기화되지 않았을 수 있는 'msg' 지역 변수를 사용했습니다.
   Matrices49860489_2010.vcxproj -> C:\Users\kewcj\Desktop\GitHub\Shooting_game\Debug\Matrices49860489.exe
   Matrices49860489_2010.vcxproj -> C:\Users\kewcj\Desktop\GitHub\Shooting_game\Debug\Matrices49860489.pdb (Full PDB)
