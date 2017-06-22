@@ -5,6 +5,7 @@
 #include <d3dx9.h>
 #include <iostream>
 #include <stdio.h>
+#include <time.h>
 
 // define the screen resolution and keyboard macros
 #define SCREEN_WIDTH  800
@@ -29,10 +30,14 @@ int t_score = 0;
 char str[100];
 bool keyup;
 bool flag_hero;
+bool flag_explosion;
 
 // 시간
-FLOAT		t = .0f;			
-DWORD		dwOldTime = 0;
+FLOAT t = .0f;			
+DWORD dwOldTime = 0;
+FLOAT starttime;
+FLOAT endtime;
+FLOAT playtime;
 
 // sprite declarations
 LPDIRECT3DTEXTURE9 sprite;    // the pointer to the sprite
@@ -40,7 +45,7 @@ LPDIRECT3DTEXTURE9 sprite_hero;
 LPDIRECT3DTEXTURE9 sprite_hero1; // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_enemy;    // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_bullet;    // the pointer to the sprite
-
+LPDIRECT3DTEXTURE9 sprite_explosion;
 
 
 									 // function prototypes
@@ -162,7 +167,7 @@ void Enemy::init(float x, float y)
 
 	x_pos = x;
 	y_pos = y;
-
+	flag_explosion = false;
 }
 
 
@@ -170,6 +175,11 @@ void Enemy::move()
 {
 	x_pos -= 1 * t;
 
+}
+
+void Enemy::fire()
+{
+	flag_explosion = true;
 }
 
 
@@ -219,7 +229,6 @@ void Bullet::init(float x, float y)
 {
 	x_pos = x;
 	y_pos = y;
-
 }
 
 
@@ -247,7 +256,6 @@ void Bullet::move()
 void Bullet::hide()
 {
 	bShow = false;
-
 }
 
 
@@ -302,8 +310,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	while (TRUE)
 	{
+		starttime = timeGetTime();
 		DWORD starting_point = GetTickCount();
-
+		
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			if (msg.message == WM_QUIT)
@@ -324,9 +333,11 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 
 
-		while ((GetTickCount() - starting_point) < 25);
+		while ((GetTickCount() - starting_point) < 10);
+		
+		endtime = timeGetTime();
+		playtime += (endtime - starttime);
 	}
-
 
 	// clean up DirectX and COM
 	cleanD3D();
@@ -463,6 +474,21 @@ void initD3D(HWND hWnd)
 		NULL,    // not using 256 colors
 		&sprite_bullet);    // load to sprite
 
+	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
+		L"img\\explosion.png",    // the file name
+		480,    // default width
+		80,    // default height
+		D3DX_DEFAULT,    // no mip mapping
+		NULL,    // regular usage
+		D3DFMT_A8R8G8B8,    // 32-bit pixels with alpha
+		D3DPOOL_MANAGED,    // typical memory handling
+		D3DX_DEFAULT,    // no filtering
+		D3DX_DEFAULT,    // no mip filtering
+		D3DCOLOR_XRGB(255, 0, 255),    // the hot-pink color key
+		NULL,    // no image info struct
+		NULL,    // not using 256 colors
+		&sprite_explosion);    // load to sprite
+
 	D3DXCreateFont(d3ddev,    // the D3D Device
 		20,    // font height of 30
 		0,    // default font width
@@ -490,7 +516,6 @@ void init_game(void)
 	//적들 초기화 
 	for (int i = 0; i<ENEMY_NUM; i++)
 	{
-
 		enemy[i].init((float)(rand() % 300 + 700), rand() % 430 + 60);
 	}
 
@@ -651,7 +676,7 @@ void render_frame(void)
 
 	SetRect(&textbox, 10, 20, 0, 0);
 
-	sprintf( str, "Total Score : %d", t_score);
+	sprintf( str, "Total Score : %d   Total time : %3.3f", t_score, (playtime/1000));
 
 	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
 
@@ -791,6 +816,25 @@ void render_frame(void)
 		d3dspt->Draw(sprite_enemy, &part2, &center2, &position2, D3DCOLOR_ARGB(255, 255, 255, 255));
 	}
 
+	if (flag_explosion == true)
+	{
+		static double frame2_e = 5.0;
+		if (frame2_e == 5.0) frame2_e = 0.0;
+		if (frame2_e < 5.0) frame2_e = frame2_e + 0.5;
+
+		int xpos2_e = (int)frame2_e * 80;
+
+		RECT part2_e;
+		SetRect(&part2_e, xpos2_e, 0, xpos2_e + 80, 80);
+		D3DXVECTOR3 center2_e(8.0f, 8.0f, 0.0f);    // center at the upper-left corner
+
+		for (int i = 0; i < ENEMY_NUM; i++)
+		{
+
+			D3DXVECTOR3 position2_e(enemy[i].x_pos, enemy[i].y_pos, 0.0f);    // position at 50, 50 with no depth
+			d3dspt->Draw(sprite_explosion, &part2_e, &center2_e, &position2_e, D3DCOLOR_ARGB(127, 255, 255, 255));
+		}
+	}
 	
 
 	d3dspt->End();    // end sprite drawing
