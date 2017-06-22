@@ -28,6 +28,7 @@ LPD3DXFONT dxfont;    // the pointer to the font object
 int t_score = 0;
 char str[100];
 bool keyup;
+bool flag_hero;
 
 // 시간
 FLOAT		t = .0f;			
@@ -713,32 +714,44 @@ void render_frame(void)
 	d3dspt->Draw(sprite, &part0, &center0, &position0, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 
-	////주인공 
-	static double frame = 10.0;   
-	if (frame == 10.0) frame = 0.0;     
-	if (frame < 10.0) frame = frame + 0.5;
+	if (KEY_DOWN(VK_SPACE))
+		flag_hero = true;
+	if(KEY_UP(VK_SPACE))
+		flag_hero = false;
 
-	int xpos = (int)frame * 64;
+	switch (flag_hero)
+	{
+	case false:
+	{
+		////주인공 
+		static double frame = 10.0;
+		if (frame == 10.0) frame = 0.0;
+		if (frame < 10.0) frame = frame + 0.5;
 
-	RECT part;
-	SetRect(&part, xpos, 0, xpos + 64, 64);
-	D3DXVECTOR3 center(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
-	D3DXVECTOR3 position(hero.x_pos, hero.y_pos, 0.0f);    // position at 50, 50 with no depth
-	d3dspt->Draw(sprite_hero, &part, &center, &position, D3DCOLOR_ARGB(255, 255, 255, 255));
+		int xpos = (int)frame * 64;
 
-	////주인공 공격시
-	static double frame_a = 5.0;
-	if (KEY_DOWN(VK_SPACE)) frame_a = 0.0;
-	if (frame_a < 5.0) frame_a = frame_a + 0.5;
+		RECT part;
+		SetRect(&part, xpos, 0, xpos + 64, 64);
+		D3DXVECTOR3 center(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
+		D3DXVECTOR3 position(hero.x_pos, hero.y_pos, 0.0f);    // position at 50, 50 with no depth
+		d3dspt->Draw(sprite_hero, &part, &center, &position, D3DCOLOR_ARGB(255, 255, 255, 255));
+	}
+	case true:
+	{
+		////주인공 공격시
+		static double frame_a = 5.0;
+		if (KEY_DOWN(VK_SPACE)) frame_a = 0.0;
+		if (frame_a < 5.0) frame_a = frame_a + 0.5;
 
-	int xpos_a = (int)frame_a * 64;
+		int xpos_a = (int)frame_a * 64;
 
-	part;
-	SetRect(&part, xpos_a, 0, xpos_a + 64, 64);
-	D3DXVECTOR3 center_a(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
-	D3DXVECTOR3 position_a(hero.x_pos, hero.y_pos, 0.0f);    // position at 50, 50 with no depth
-	d3dspt->Draw(sprite_hero1, &part, &center_a, &position_a, D3DCOLOR_ARGB(255, 255, 255, 255));
-
+		RECT part_a;
+		SetRect(&part_a, xpos_a, 0, xpos_a + 64, 64);
+		D3DXVECTOR3 center_a(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
+		D3DXVECTOR3 position_a(hero.x_pos, hero.y_pos, 0.0f);    // position at 50, 50 with no depth
+		d3dspt->Draw(sprite_hero1, &part_a, &center_a, &position_a, D3DCOLOR_ARGB(255, 255, 255, 255));
+	}
+	}
 
 	////총알 
 	for (int i = 0; i < BULLET_NUM; i++)
