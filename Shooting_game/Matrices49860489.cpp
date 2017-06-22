@@ -12,7 +12,7 @@
 #define KEY_DOWN(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #define KEY_UP(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 0 : 1)
 
-#define ENEMY_NUM 10
+#define ENEMY_NUM 25
 #define BULLET_NUM 100
 
 
@@ -26,7 +26,6 @@ LPDIRECT3DDEVICE9 d3ddev;    // the pointer to the device class
 LPD3DXSPRITE d3dspt;    // the pointer to our Direct3D Sprite interface
 LPD3DXFONT dxfont;    // the pointer to the font object
 int t_score = 0;
-int s_score = 0;
 char str[100];
 bool keyup;
 
@@ -36,7 +35,8 @@ DWORD		dwOldTime = 0;
 
 // sprite declarations
 LPDIRECT3DTEXTURE9 sprite;    // the pointer to the sprite
-LPDIRECT3DTEXTURE9 sprite_hero;    // the pointer to the sprite
+LPDIRECT3DTEXTURE9 sprite_hero;
+LPDIRECT3DTEXTURE9 sprite_hero1; // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_enemy;    // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_bullet;    // the pointer to the sprite
 
@@ -202,7 +202,6 @@ bool Bullet::check_collision(float x, float y)
 	{
 		bShow = false;
 		t_score = t_score + 10;
-		s_score = s_score + 10;
 		return true;
 
 	}
@@ -387,7 +386,7 @@ void initD3D(HWND hWnd)
 	D3DXCreateSprite(d3ddev, &d3dspt);    // create the Direct3D Sprite object
 
 	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
-		L"nightskycut.png",    // the file name
+		L"img\\nightskycut.png",    // the file name
 		800,    // default width
 		560,    // default height
 		D3DX_DEFAULT,    // no mip mapping
@@ -403,9 +402,9 @@ void initD3D(HWND hWnd)
 
 
 	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
-		L"A_R3.png",    // the file name
-		D3DX_DEFAULT,    // default width
-		D3DX_DEFAULT,    // default height
+		L"img\\sasuke(w).png",    // the file name
+		704,    // default width
+		64,    // default height
 		D3DX_DEFAULT,    // no mip mapping
 		NULL,    // regular usage
 		D3DFMT_A8R8G8B8,    // 32-bit pixels with alpha
@@ -418,9 +417,24 @@ void initD3D(HWND hWnd)
 		&sprite_hero);    // load to sprite
 
 	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
-		L"A_A3.png",    // the file name
-		D3DX_DEFAULT,    // default width
-		D3DX_DEFAULT,    // default height
+		L"img\\attack(w).png",    // the file name
+		256,    // default width
+		64,    // default height
+		D3DX_DEFAULT,    // no mip mapping
+		NULL,    // regular usage
+		D3DFMT_A8R8G8B8,    // 32-bit pixels with alpha
+		D3DPOOL_MANAGED,    // typical memory handling
+		D3DX_DEFAULT,    // no filtering
+		D3DX_DEFAULT,    // no mip filtering
+		D3DCOLOR_XRGB(255, 0, 255),    // the hot-pink color key
+		NULL,    // no image info struct
+		NULL,    // not using 256 colors
+		&sprite_hero1);    // load to sprite
+
+	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
+		L"img\\enemy_1.png",    // the file name
+		1152,    // default width
+		64,    // default height
 		D3DX_DEFAULT,    // no mip mapping
 		NULL,    // regular usage
 		D3DFMT_A8R8G8B8,    // 32-bit pixels with alpha
@@ -434,9 +448,9 @@ void initD3D(HWND hWnd)
 
 
 	D3DXCreateTextureFromFileEx(d3ddev,    // the device pointer
-		L"A_P3.png",    // the file name
-		D3DX_DEFAULT,    // default width
-		D3DX_DEFAULT,    // default height
+		L"img\\weapon.png",    // the file name
+		192,    // default width
+		64,    // default height
 		D3DX_DEFAULT,    // no mip mapping
 		NULL,    // regular usage
 		D3DFMT_A8R8G8B8,    // 32-bit pixels with alpha
@@ -451,7 +465,7 @@ void initD3D(HWND hWnd)
 	D3DXCreateFont(d3ddev,    // the D3D Device
 		20,    // font height of 30
 		0,    // default font width
-		0,    // font weight
+		FW_BOLD,    // font weight
 		1,    // not using MipLevels
 		false,    // italic font
 		DEFAULT_CHARSET,    // default character set
@@ -476,7 +490,7 @@ void init_game(void)
 	for (int i = 0; i<ENEMY_NUM; i++)
 	{
 
-		enemy[i].init((float)(rand() % 300 + 700), rand() % 300 + 100);
+		enemy[i].init((float)(rand() % 300 + 700), rand() % 430 + 60);
 	}
 
 	//총알 초기화
@@ -508,7 +522,7 @@ void do_game_logic(void)
 		if (hero.check_collision(enemy[i].x_pos, enemy[i].y_pos) == true)
 		{
 			hero.HP--;
-			enemy[i].init((float)(rand() % 300 + 700), rand() % 300 + 100);
+			enemy[i].init((float)(rand() % 300 + 700), rand() % 430 + 60);
 		}
 	}
 
@@ -516,7 +530,7 @@ void do_game_logic(void)
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
 		if (enemy[i].x_pos < 0)
-			enemy[i].init((float)(rand() % 300 + 700), rand() % 300 + 100);
+			enemy[i].init((float)(rand() % 300 + 700), rand() % 430 + 60);
 		else
 			enemy[i].move();
 	}
@@ -563,7 +577,7 @@ void do_game_logic(void)
 			{
 				if (bullet[i].check_collision(enemy[j].x_pos, enemy[j].y_pos) == true)
 				{
-					enemy[j].init((float)(rand() % 300 + 700), rand() % 300 + 100);
+					enemy[j].init((float)(rand() % 300 + 700), rand() % 430 + 60);
 					bullet[i].hide();
 				}
 			}
@@ -636,7 +650,7 @@ void render_frame(void)
 
 	SetRect(&textbox, 10, 20, 0, 0);
 
-	sprintf( str, "Total Score : %d    Stage Score : %d", t_score, s_score);
+	sprintf( str, "Total Score : %d", t_score);
 
 	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
 
@@ -698,20 +712,47 @@ void render_frame(void)
 	D3DXVECTOR3 position0(0.0f, 50.0f, 0.0f);    // position at 50, 50 with no depth
 	d3dspt->Draw(sprite, &part0, &center0, &position0, D3DCOLOR_ARGB(255, 255, 255, 255));
 
+
 	////주인공 
+	static double frame = 10.0;   
+	if (frame == 10.0) frame = 0.0;     
+	if (frame < 10.0) frame = frame + 0.5;
+
+	int xpos = (int)frame * 64;
+
 	RECT part;
-	SetRect(&part, 0, 0, 64, 64);
+	SetRect(&part, xpos, 0, xpos + 64, 64);
 	D3DXVECTOR3 center(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
 	D3DXVECTOR3 position(hero.x_pos, hero.y_pos, 0.0f);    // position at 50, 50 with no depth
 	d3dspt->Draw(sprite_hero, &part, &center, &position, D3DCOLOR_ARGB(255, 255, 255, 255));
+
+	////주인공 공격시
+	static double frame_a = 5.0;
+	if (KEY_DOWN(VK_SPACE)) frame_a = 0.0;
+	if (frame_a < 5.0) frame_a = frame_a + 0.5;
+
+	int xpos_a = (int)frame_a * 64;
+
+	part;
+	SetRect(&part, xpos_a, 0, xpos_a + 64, 64);
+	D3DXVECTOR3 center_a(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
+	D3DXVECTOR3 position_a(hero.x_pos, hero.y_pos, 0.0f);    // position at 50, 50 with no depth
+	d3dspt->Draw(sprite_hero1, &part, &center_a, &position_a, D3DCOLOR_ARGB(255, 255, 255, 255));
+
 
 	////총알 
 	for (int i = 0; i < BULLET_NUM; i++)
 	{
 		if (bullet[i].bShow == true)
 		{
+			static double frame1 = 2.0;
+			if (frame1 == 2.0) frame1 = 0.0;
+			if (frame1 < 2.0) frame1 = frame1 + 0.5;
+
+			int xpos1 = (int)frame1 * 64;
+
 			RECT part1;
-			SetRect(&part1, 0, 0, 64, 64);
+			SetRect(&part1, xpos1, 0, xpos1 + 64, 64);
 			D3DXVECTOR3 center1(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
 			D3DXVECTOR3 position1(bullet[i].x_pos, bullet[i].y_pos, 0.0f);    // position at 50, 50 with no depth
 			d3dspt->Draw(sprite_bullet, &part1, &center1, &position1, D3DCOLOR_ARGB(255, 255, 255, 255));
@@ -719,9 +760,15 @@ void render_frame(void)
 	}
 
 
-	////에네미 
+	////enemy
+	static double frame2 = 17.0;
+	if (frame2 == 17.0) frame2 = 0.0;
+	if (frame2 < 17.0) frame2 = frame2 + 0.5;
+
+	int xpos2 = (int)frame2 * 64;
+
 	RECT part2;
-	SetRect(&part2, 0, 0, 64, 64);
+	SetRect(&part2, xpos2, 0, xpos2 + 64, 64);
 	D3DXVECTOR3 center2(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
 
 	for (int i = 0; i<ENEMY_NUM; i++)
