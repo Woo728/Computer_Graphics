@@ -6,6 +6,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <time.h>
+#include <dsound.h>
+#include "DSound.h"
 #include <fmod.h>
 #include <string>
 #include "Sound.h"
@@ -30,11 +32,13 @@ LPDIRECT3D9 d3d;    // the pointer to our Direct3D interface
 LPDIRECT3DDEVICE9 d3ddev;    // the pointer to the device class
 LPD3DXSPRITE d3dspt;    // the pointer to our Direct3D Sprite interface
 LPD3DXFONT dxfont;    // the pointer to the font object
+LPD3DXFONT dxfont1;
 int t_score = 0;
 char str[100];
 bool keyup = true;
 bool flag_hero;
 bool flag_explosion;
+int gamestate = 1;
 
 // 시간
 FLOAT t = .0f;			
@@ -50,11 +54,14 @@ LPDIRECT3DTEXTURE9 sprite_hero1; // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_enemy;    // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_bullet;    // the pointer to the sprite
 LPDIRECT3DTEXTURE9 sprite_explosion;
+LPDIRECTSOUNDBUFFER   g_lpDSBG[2] = { NULL, };
 
 
 									 // function prototypes
 void initD3D(HWND hWnd);    // sets up and initializes Direct3D
 void render_frame(void);    // renders a single frame
+void render_frame1(void);
+void render_frame2(void);
 void cleanD3D(void);		// closes Direct3D and releases memory
 
 void init_game(void);
@@ -263,7 +270,6 @@ void Bullet::hide()
 
 
 
-
 //객체 생성 
 Hero hero;
 Enemy enemy[ENEMY_NUM];
@@ -292,7 +298,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	RegisterClassEx(&wc);
 
-	hWnd = CreateWindowEx(NULL, L"WindowClass", L"street flight",
+	hWnd = CreateWindowEx(NULL, L"WindowClass", L"ninja flight",
 		WS_EX_TOPMOST | WS_POPUP, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
 		NULL, NULL, hInstance, NULL);
 
@@ -301,46 +307,147 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	// set up and initialize Direct3D
 	initD3D(hWnd);
 
-	//게임 오브젝트 초기화 
-	init_game();
-
-
-	//sound.PlaySoundBG(1);
-
-
 	// enter the main loop:
 	MSG msg;
 
-	while (TRUE)
-	{
-		starttime = timeGetTime();
-		DWORD starting_point = GetTickCount();
-		
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			if (msg.message == WM_QUIT)
-				break;
+	Play(g_lpDSBG[0], FALSE);
 
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+	switch (gamestate)
+	{
+	case 1:
+	{
+		while (TRUE)
+		{
+			DWORD starting_point = GetTickCount();
+			sound.Update();
+
+			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				if (msg.message == WM_QUIT)
+					break;
+
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
+			render_frame1();
+
+			// check the 'escape' key
+			if (KEY_DOWN(VK_RETURN))
+				PostMessage(hWnd, WM_DESTROY, 0, 0);
+
+
+			while ((GetTickCount() - starting_point) < 10);
+		}
+	}
+	case 2:
+	{
+		init_game();
+
+		sound.PlaySoundBG(1);
+
+
+		while (TRUE)
+		{
+			starttime = timeGetTime();
+			DWORD starting_point = GetTickCount();
+			sound.Update();
+
+			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				if (msg.message == WM_QUIT)
+					break;
+
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
+			do_game_logic();
+
+			render_frame();
+
+			// check the 'escape' key
+			if (hero.HP == 0)
+				PostMessage(hWnd, WM_DESTROY, 0, 0);
+
+
+
+
+			while ((GetTickCount() - starting_point) < 10);
+
+			endtime = timeGetTime();
+			playtime += (endtime - starttime);
 		}
 
-		do_game_logic();
-
-		render_frame();
-
-		// check the 'escape' key
-		if (KEY_DOWN(VK_ESCAPE))
-			PostMessage(hWnd, WM_DESTROY, 0, 0);
-
-
-
-
-		while ((GetTickCount() - starting_point) < 10);
-		
-		endtime = timeGetTime();
-		playtime += (endtime - starttime);
+		sound.StopSoundBG(1);
 	}
+	case 3:
+	{
+		while (TRUE)
+		{
+			DWORD starting_point = GetTickCount();
+			sound.Update();
+
+			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				if (msg.message == WM_QUIT)
+					break;
+
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
+			render_frame2();
+
+			// check the 'escape' key
+			if (KEY_DOWN(VK_ESCAPE))
+				PostMessage(hWnd, WM_DESTROY, 0, 0);
+
+
+			while ((GetTickCount() - starting_point) < 10);
+		}
+
+	}
+	}
+
+	//게임 오브젝트 초기화 
+	//init_game();
+
+
+	//sound.PlaySoundBG(1);
+	//
+
+	//while (TRUE)
+	//{
+	//	starttime = timeGetTime();
+	//	DWORD starting_point = GetTickCount();
+	//	sound.Update();
+	//	
+	//	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	//	{
+	//		if (msg.message == WM_QUIT)
+	//			break;
+
+	//		TranslateMessage(&msg);
+	//		DispatchMessage(&msg);
+	//	}
+
+	//	do_game_logic();
+
+	//	render_frame();
+
+	//	// check the 'escape' key
+	//	if (KEY_DOWN(VK_ESCAPE))
+	//		PostMessage(hWnd, WM_DESTROY, 0, 0);
+
+
+
+
+	//	while ((GetTickCount() - starting_point) < 10);
+	//	
+	//	endtime = timeGetTime();
+	//	playtime += (endtime - starttime);
+	//}
 
 	//sound.StopSoundBG(1);
 	
@@ -399,6 +506,11 @@ void initD3D(HWND hWnd)
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
 		&d3dpp,
 		&d3ddev);
+
+	////초기화 하는 곳에서 다이렉트 사운드 객체를 생성한다.
+	//CreateDirectSound(hWnd);
+	////그리고, wav파일을 로드하여, 보조버퍼를 생성한다.
+	//LoadWave( L"sound\\Naruto_bgm.mp3", &g_lpDSBG[0]);
 
 	D3DXCreateSprite(d3ddev, &d3dspt);    // create the Direct3D Sprite object
 
@@ -507,6 +619,19 @@ void initD3D(HWND hWnd)
 		L"Arial",    // use Facename Arial
 		&dxfont);    // the font object
 
+	D3DXCreateFont(d3ddev,    // the D3D Device
+		70,    // font height of 30
+		0,    // default font width
+		FW_BOLD,    // font weight
+		1,    // not using MipLevels
+		false,    // italic font
+		DEFAULT_CHARSET,    // default character set
+		OUT_DEFAULT_PRECIS,    // default OutputPrecision,
+		DEFAULT_QUALITY,    // default Quality
+		DEFAULT_PITCH | FF_DONTCARE,    // default pitch and family
+		L"Arial",    // use Facename Arial
+		&dxfont1);    // the font object
+
 
 	return;
 }
@@ -516,7 +641,7 @@ void init_game(void)
 {
 	//객체 초기화 
 	hero.init(50, 250);
-	hero.HP = 6;
+	hero.HP = 4;
 
 	//적들 초기화 
 	for (int i = 0; i<ENEMY_NUM; i++)
@@ -530,10 +655,12 @@ void init_game(void)
 		bullet[i].init(hero.x_pos + 0.5f, hero.y_pos);
 	}
 
-	string strBGFileName[] = { "sound\\Naruto_bgm.mp3" };
+	
+
+	/*string strBGFileName[] = { "sound\\Naruto_bgm.mp3" };
 	string strEFFFileName[] = { "sound\\suriken.mp3", "sound\\bomb.mp3", "sound\\whip.mp3" };
 	sound.CreateBGsound(1, strBGFileName);
-	sound.CreateEFFsound(3, strEFFFileName);
+	sound.CreateEFFsound(3, strEFFFileName);*/
 }
 
 
@@ -561,7 +688,6 @@ void do_game_logic(void)
 			hero.init(50, 250);
 			enemy[i].init((float)(rand() % 300 + 700), rand() % 430 + 60);
 		}
-		sound.Update();
 	}
 
 	//적들 처리 
@@ -591,7 +717,6 @@ void do_game_logic(void)
 					bullet[i].init(hero.x_pos + 0.5f, hero.y_pos);
 					break;
 				}
-				sound.Update();
 			}
 			keyup = false;
 		}
@@ -621,7 +746,6 @@ void do_game_logic(void)
 					enemy[j].init((float)(rand() % 300 + 700), rand() % 430 + 60);
 					bullet[i].hide();
 				}
-				sound.Update();
 			}
 		}
 	}
@@ -648,8 +772,6 @@ void render_frame(void)
 	d3ddev->BeginScene();    // begins the 3D scene
 
 
-	
-
 
 	// create a RECT to contain the text
 	static RECT textbox;
@@ -664,26 +786,20 @@ void render_frame(void)
 	SetRect(&textbox, 10, 560, 0, 0);
 	switch (hero.HP)
 	{
-	case 6:
-		sprintf(str, "HP ♥ ♥ ♥ ♥ ♥ ♥");
-		break;
-	case 5:
+	case 4:
 		sprintf(str, "HP ♥ ♥ ♥ ♥ ♥");
 		break;
-	case 4:
+	case 3:
 		sprintf(str, "HP ♥ ♥ ♥ ♥");
 		break;
-	case 3:
+	case 2:
 		sprintf(str, "HP ♥ ♥ ♥");
 		break;
-	case 2:
+	case 1:
 		sprintf(str, "HP ♥ ♥");
 		break;
-	case 1:
-		sprintf(str, "HP ♥");
-		break;
 	case 0:
-		sprintf(str, "game over");
+		sprintf(str, "HP ♥");
 		break;
 	}
 
@@ -809,6 +925,149 @@ void render_frame(void)
 	return;
 }
 
+void render_frame1(void)
+{
+	t = (timeGetTime() - dwOldTime) *.05f;
+	dwOldTime = timeGetTime();
+
+	// clear the window to a deep blue
+	d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
+	d3ddev->BeginScene();    // begins the 3D scene
+
+
+	/*SetRect(&textbox, 10, 560, 0, 0);
+	switch (hero.HP)
+	{
+	case 6:
+		sprintf(str, "HP ♥ ♥ ♥ ♥ ♥ ♥");
+		break;
+	case 5:
+		sprintf(str, "HP ♥ ♥ ♥ ♥ ♥");
+		break;
+	case 4:
+		sprintf(str, "HP ♥ ♥ ♥ ♥");
+		break;
+	case 3:
+		sprintf(str, "HP ♥ ♥ ♥");
+		break;
+	case 2:
+		sprintf(str, "HP ♥ ♥");
+		break;
+	case 1:
+		sprintf(str, "HP ♥");
+		break;
+	case 0:
+		sprintf(str, "game over");
+		break;
+	}
+
+	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
+*/
+
+
+	d3dspt->Begin(D3DXSPRITE_ALPHABLEND);
+
+
+	//BACKGROUND
+	RECT part0;
+	SetRect(&part0, 0, 50, 800, 550);
+	D3DXVECTOR3 center0(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
+	D3DXVECTOR3 position0(0.0f, 50.0f, 0.0f);    // position at 50, 50 with no depth
+	d3dspt->Draw(sprite, &part0, &center0, &position0, D3DCOLOR_ARGB(50, 255, 255, 255));
+
+	static RECT textbox;
+	SetRect(&textbox, 190, 200, 0, 0);
+	sprintf(str, "NINJA FLIGHT");
+	dxfont1->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
+
+	SetRect(&textbox, 310, 350, 0, 0);
+	sprintf(str, "'Enter'를 눌러주십시오.");
+	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
+
+	d3dspt->End();    // end sprite drawing
+
+	d3ddev->EndScene();    // ends the 3D scene
+
+	d3ddev->Present(NULL, NULL, NULL, NULL);
+
+	return;
+}
+
+void render_frame2(void)
+{
+	t = (timeGetTime() - dwOldTime) *.05f;
+	dwOldTime = timeGetTime();
+
+	// clear the window to a deep blue
+	d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
+	d3ddev->BeginScene();    // begins the 3D scene
+
+
+	/*SetRect(&textbox, 10, 560, 0, 0);
+	switch (hero.HP)
+	{
+	case 6:
+	sprintf(str, "HP ♥ ♥ ♥ ♥ ♥ ♥");
+	break;
+	case 5:
+	sprintf(str, "HP ♥ ♥ ♥ ♥ ♥");
+	break;
+	case 4:
+	sprintf(str, "HP ♥ ♥ ♥ ♥");
+	break;
+	case 3:
+	sprintf(str, "HP ♥ ♥ ♥");
+	break;
+	case 2:
+	sprintf(str, "HP ♥ ♥");
+	break;
+	case 1:
+	sprintf(str, "HP ♥");
+	break;
+	case 0:
+	sprintf(str, "game over");
+	break;
+	}
+
+	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
+	*/
+
+
+	d3dspt->Begin(D3DXSPRITE_ALPHABLEND);
+
+
+	//BACKGROUND
+	RECT part0;
+	SetRect(&part0, 0, 50, 800, 550);
+	D3DXVECTOR3 center0(0.0f, 0.0f, 0.0f);    // center at the upper-left corner
+	D3DXVECTOR3 position0(0.0f, 50.0f, 0.0f);    // position at 50, 50 with no depth
+	d3dspt->Draw(sprite, &part0, &center0, &position0, D3DCOLOR_ARGB(50, 255, 255, 255));
+
+
+	static RECT textbox;
+	SetRect(&textbox, 210, 200, 0, 0);
+	sprintf(str, "GAME OVER");
+	dxfont1->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
+
+	SetRect(&textbox, 250, 280, 0, 0);
+	sprintf(str, "Your score : %d & playtime : %3.3f sec", t_score, (playtime/1000));
+	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
+
+	SetRect(&textbox, 310, 320, 0, 0);
+	sprintf(str, "'ESC'를 누르면 종료합니다.");
+	dxfont->DrawTextA(NULL, str, -1, &textbox, DT_NOCLIP, D3DXCOLOR(255.0f, 255.0f, 255.0f, 255.0f));
+
+
+	d3dspt->End();    // end sprite drawing
+
+	d3ddev->EndScene();    // ends the 3D scene
+
+	d3ddev->Present(NULL, NULL, NULL, NULL);
+
+	return;
+}
 
 // this is the function that cleans up Direct3D and COM
 void cleanD3D(void)

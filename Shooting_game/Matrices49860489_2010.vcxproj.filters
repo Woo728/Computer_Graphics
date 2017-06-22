@@ -17,6 +17,7 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Sound.cpp" />
+    <ClCompile Include="DSound.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
@@ -26,6 +27,7 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
     <ClInclude Include="Sound.h" />
+    <ClInclude Include="DSound.h" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
